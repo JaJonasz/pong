@@ -1,0 +1,187 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+    </head>
+    <style> 
+        body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background-color: darkgray;
+        }
+        canvas {
+            border: 3px solid #fff;
+        }
+    </style>
+    <body>
+        <canvas></canvas>
+        <script>
+        const canvas = document.querySelector('canvas');
+        const ctx = canvas.getContext('2d');
+        //sizes    
+        let cw = 1000;  //canvas width
+        let ch = 500;   //canvas height
+        let lw = 4;     //line width
+        let lh = 12;    //line height
+        let pw = 15;    //paddle width
+        let ph = 80;    //paddle height
+        let bs = 15;    //ball size
+        //movement    
+        let bsx = 5;    //horizontal ball speed
+        let bsy = 5;    //vertical ball speed
+        let bpx = cw/2-bs/2;    //ball posision x
+        let bpy = ch/2-bs/2;    //ball position y
+        let ppy = ch/2-ph/2;    //player position y
+        let apy = ch/2-ph/2;    //ai position y
+        let maxs = 10;          //max ball speed
+        //scoring
+        let playerScore = 0;
+        let aiScore = 0;
+        const scoreMax = 10;
+            
+        canvas.width = cw;
+        canvas.height = ch;
+        
+        function table() {
+            //table
+            ctx.fillStyle = 'navy';
+            ctx.fillRect(0,0,cw,ch);
+            //middle lines
+            ctx.fillStyle = '#fff';
+            for(let lp=lh/2; lp<ch; lp += 2*lh) {
+                ctx.fillRect(cw/2-lw/2,lp,lw,lh);
+            }
+            
+        }
+            
+        function paddle() {
+            ctx.fillStyle = 'grey';
+            ctx.fillRect(20,ppy,pw,ph);
+        }
+        
+        function ai() {
+            ctx.fillStyle = 'yellow';
+            ctx.fillRect(cw-pw-20,apy,pw,ph);
+        }
+            
+        function ball() {
+            ctx.fillStyle = '#fff'
+            ctx.fillRect(bpx,bpy,bs,bs);
+            bpx += bsx;
+            bpy += bsy;
+            if (bpy<0 || bpy>ch-bs) {
+                bsy = -bsy;
+                speedup();
+            }
+            
+            if (bpx<=0){
+            ++aiScore;
+            bpx=cw/2-bs/2; bsx=5; bsy=5;
+            //console.log("Computer: " + aiScore);
+            } 
+            
+            else if (bpx>cw-bs) {
+            ++playerScore; 
+            bpx=cw/2-bs/2; bsx=5; bsy=5;
+            //console.log("Player: " + playerScore);
+            }
+            //plyer paddle hit
+            if (bpx<=20+pw && bpx>=20 && bpy>=ppy && bpy<=ppy+ph) {
+                bsx = -bsx;
+            }
+            //ai paddle hit
+            if (bpx>=cw-pw-20-bs && bpx<=cw-20-bs && bpy>=apy && bpy<=apy+ph) {
+                bsx = -bsx;
+            }
+            
+            ctx.font = "110px Source Code Pro";
+            ctx.fillStyle = "rgba(0,0,0,0.2)";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(aiScore,3*cw/4,ch/2);
+            ctx.fillText(playerScore,ch/2,cw/4);
+            
+            if (playerScore==scoreMax || aiScore==scoreMax) {
+            window.alert("Game over. Computer: " + aiScore + " Player: " + playerScore);
+            console.log("koniec, match: " + match);
+            clearInterval(match);
+            playerSocre=0; aiScore=0;
+            }
+            
+        }   
+        
+        let ctop = canvas.offsetTop;
+            
+        function playerPosition(e) {
+            ppy = e.clientY-ctop-3-ph/2;
+            
+            if(ppy<0) {ppy=0}
+            if(ppy>ch-ph) {ppy=ch-ph}
+        }    
+            
+        function aiPosition() {
+            
+            if(bsx>0) {
+                if(apy-bpy > 120 && apy > 0) {
+                    apy -= 15;                    
+                } 
+                
+                else if (apy-bpy < -120 && apy < ch - ph) {
+                    apy += 15;
+                }
+                
+                else if (apy-bpy > bs/2-ph/2 && apy > 0) {
+                    apy -= 5;
+                }
+                
+                else if (apy-bpy < bs/2-ph/2 && apy < ch - ph) {
+                    apy += 5;
+                }
+            }
+            
+            if(bsx<0) {
+                if(apy-bpy > 120 && apy > 0) {
+                    apy -= 4;                    
+                } 
+                
+                else if (apy-bpy < -120 && apy < ch - ph) {
+                    apy += 4;
+                }
+                
+                else if (apy-bpy > bs/2-ph/2 && apy > 0) {
+                    apy -= 2;
+                }
+                
+                else if (apy-bpy < bs/2-ph/2 && apy < ch - ph) {
+                    apy += 2;
+                }
+            }
+        }   
+            
+        function speedup() {
+            
+            if(bsx<0 && bsx>-maxs) {bsx -= .2}
+            else if (bsx>0 && bsx<maxs) {bsx += .2}
+            
+            if(bsy<0 && bsy>-maxs) {bsy -= .2}
+            else if (bsy>0 && bsy<maxs) {bsy += .2}
+        }
+            
+        canvas.addEventListener("mousemove",playerPosition)    
+            
+        function game() {    
+        table();
+        paddle();
+        ai();
+        ball();
+        aiPosition();
+        }
+            
+        const match = setInterval(game,1000/60);
+            
+        </script>
+    </body>
+</html>

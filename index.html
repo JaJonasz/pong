@@ -1,6 +1,6 @@
 <html>
     <head>
-        <meta charset="utf-8">
+        <meta canvas_heightarset="utf-8">
     </head>
     <style> 
         body {
@@ -22,93 +22,121 @@
         const canvas = document.querySelector('canvas');
         const ctx = canvas.getContext('2d');
         //sizes    
-        let cw = 1000;  //canvas width
-        let ch = 500;   //canvas height
-        let lw = 4;     //line width
-        let lh = 12;    //line height
-        let pw = 15;    //paddle width
-        let ph = 80;    //paddle height
-        let bs = 15;    //ball size
+        let canvas_width = 1000;  //canvas width
+        let canvas_height = 500;   //canvas height
+        let line_width = 4;     //line width
+        let line_height = 12;    //line height
+        let paddle_width = 15;    //paddle width
+        let paddle_height = 80;    //paddle height
+        let ball_size = 15;    //ball size
         //movement    
-        let bsx = 5;    //horizontal ball speed
-        let bsy = 5;    //vertical ball speed
-        let bpx = cw/2-bs/2;    //ball posision x
-        let bpy = ch/2-bs/2;    //ball position y
-        let ppy = ch/2-ph/2;    //player position y
-        let apy = ch/2-ph/2;    //ai position y
-        let maxs = 10;          //max ball speed
+        let ball_size_horizontal = 5;    //horizontal ball speed
+        let ball_size_vertical = 5;    //vertical ball speed
+        let ball_position_x = canvas_width/2-ball_size/2;    //ball posision x
+        let ball_position_y = canvas_height/2-ball_size/2;    //ball position y
+        let player_position_y = canvas_height/2-paddle_height/2;    //player position y
+        let ai_position_y = canvas_height/2-paddle_height/2;    //ai position y
+        let max_speed = 10;          //max ball speed
         //scoring
-        let playerScore = 0;
-        let aiScore = 0;
+        let player_score = 1;
+        let ai_score = 9;
         const scoreMax = 10;
             
-        canvas.width = cw;
-        canvas.height = ch;
+        canvas.width = canvas_width;
+        canvas.height = canvas_height;
         
         function table() {
             //table
             ctx.fillStyle = 'navy';
-            ctx.fillRect(0,0,cw,ch);
+            ctx.fillRect(0,0,canvas_width,canvas_height);
             //middle lines
             ctx.fillStyle = '#fff';
-            for(let lp=lh/2; lp<ch; lp += 2*lh) {
-                ctx.fillRect(cw/2-lw/2,lp,lw,lh);
+            for(let lp=line_height/2; lp<canvas_height; lp += 2*line_height) {
+                ctx.fillRect(canvas_width/2-line_width/2,lp,line_width,line_height);
             }
-            
-        }
-            
-        function paddle() {
-            ctx.fillStyle = 'grey';
-            ctx.fillRect(20,ppy,pw,ph);
-        }
-        
-        function ai() {
-            ctx.fillStyle = 'yellow';
-            ctx.fillRect(cw-pw-20,apy,pw,ph);
-        }
-            
-        function ball() {
-            ctx.fillStyle = '#fff'
-            ctx.fillRect(bpx,bpy,bs,bs);
-            bpx += bsx;
-            bpy += bsy;
-            if (bpy<0 || bpy>ch-bs) {
-                bsy = -bsy;
-                speedup();
-            }
-            
-            if (bpx<=0){
-            ++aiScore;
-            bpx=cw/2-bs/2; bsx=5; bsy=5;
-            //console.log("Computer: " + aiScore);
-            } 
-            
-            else if (bpx>cw-bs) {
-            ++playerScore; 
-            bpx=cw/2-bs/2; bsx=5; bsy=5;
-            //console.log("Player: " + playerScore);
-            }
-            //plyer paddle hit
-            if (bpx<=20+pw && bpx>=20 && bpy>=ppy && bpy<=ppy+ph) {
-                bsx = -bsx;
-            }
-            //ai paddle hit
-            if (bpx>=cw-pw-20-bs && bpx<=cw-20-bs && bpy>=apy && bpy<=apy+ph) {
-                bsx = -bsx;
-            }
-            
+            //score
             ctx.font = "110px Source Code Pro";
             ctx.fillStyle = "rgba(0,0,0,0.2)";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-            ctx.fillText(aiScore,3*cw/4,ch/2);
-            ctx.fillText(playerScore,ch/2,cw/4);
+            ctx.fillText(ai_score,3*canvas_width/4,canvas_height/2);
+            ctx.fillText(player_score,canvas_width/4,canvas_height/2);
+            //debug log
+            ctx.font = "12px Arial";
+            ctx.fillStyle = "rgba(255,255,255,1)";
+            ctx.textAlign = "left";
+            ctx.textBaseline = "left";
+            ctx.fillText("ball_size_horizontal: " + ball_size_horizontal,20,20);
+            ctx.fillText("ball_size_vertical: " + ball_size_vertical,20,40);
+            ctx.fillText("ball_position_x: " + ball_position_x,20,60);
+            ctx.fillText("ball_position_y: " + ball_position_y,20,80);
+            ctx.fillText("player_position_y: " + player_position_y,20,100);
+            ctx.fillText("ai_position_y: " + ai_position_y,20,120);
+        }
             
-            if (playerScore==scoreMax || aiScore==scoreMax) {
-            window.alert("Game over. Computer: " + aiScore + " Player: " + playerScore);
+        function paddle() {
+            ctx.fillStyle = 'grey';
+            ctx.fillRect(20,player_position_y,paddle_width,paddle_height);
+        }
+        
+        function ai() {
+            ctx.fillStyle = 'yellow';
+            ctx.fillRect(canvas_width-paddle_width-20,ai_position_y,paddle_width,paddle_height);
+        }
+            
+        function ball() {
+            ctx.fillStyle = '#fff'
+            ctx.fillRect(ball_position_x,ball_position_y,ball_size,ball_size);
+            ball_position_x += ball_size_horizontal;
+            ball_position_y += ball_size_vertical;
+            if (ball_position_y<0 || ball_position_y>canvas_height-ball_size) {
+                ball_size_vertical = -ball_size_vertical;
+                speedup();
+            }
+            
+            if (ball_position_x<=0){
+                
+                ++ai_score;
+                ball_size_horizontal -= .5; 
+                ball_size_vertical -= .5;
+                ball_position_x=canvas_width/2-ball_size/2; //ball_size_horizontal=5; ball_size_vertical=5;
+                console.log("Computer: " + ai_score);
+            } 
+            
+            else if (ball_position_x>canvas_width-ball_size) {
+            
+                ++player_score;
+                ball_size_horizontal -= .5; ball_size_vertical -= .5;
+                ball_position_x=canvas_width/2-ball_size/2; //ball_size_horizontal=5; ball_size_vertical=5;
+            console.log("Player: " + player_score);
+            }
+            //plyer paddle hit
+            if (ball_position_x<=20+paddle_width && ball_position_x>=20 && ball_position_y>=player_position_y && ball_position_y<=player_position_y+paddle_height) {
+                ball_size_horizontal = -ball_size_horizontal;   
+            }
+            //ai paddle hit
+            if (ball_position_x>=canvas_width-paddle_width-20-ball_size && ball_position_x<=canvas_width-20-ball_size && ball_position_y>=ai_position_y && ball_position_y<=ai_position_y+paddle_height) {
+                ball_size_horizontal = -ball_size_horizontal;
+            }
+            
+            if (player_score==scoreMax || ai_score==scoreMax) {
+                
+            window.alert("Game over. Computer: " + ai_score + " Player: " + player_score);
             console.log("koniec, match: " + match);
             clearInterval(match);
-            playerSocre=0; aiScore=0;
+            player_score=2; ai_score=9; ball_size_horizontal=5; ball_size_vertical=5;
+                console.log("player: " + player_score + "   computer: " + ai_score);
+                
+                function game() {   
+                    
+                    table();
+                    paddle();
+                    ai();
+                    ball();
+                    aiPosition();            
+                }
+                
+            match = setInterval(game,1000/60);    
             }
             
         }   
@@ -116,71 +144,78 @@
         let ctop = canvas.offsetTop;
             
         function playerPosition(e) {
-            ppy = e.clientY-ctop-3-ph/2;
+            player_position_y = e.clientY-ctop-3-paddle_height/2;
             
-            if(ppy<0) {ppy=0}
-            if(ppy>ch-ph) {ppy=ch-ph}
+            if(player_position_y<0) {player_position_y=0}
+            if(player_position_y>canvas_height-paddle_height) {player_position_y=canvas_height-paddle_height}
         }    
             
         function aiPosition() {
             
-            if(bsx>0) {
-                if(apy-bpy > 120 && apy > 0) {
-                    apy -= 15;                    
+            if(ball_size_horizontal>0) {
+                if (ai_position_y-ball_position_y > 120 && ai_position_y > 14-ball_size_horizontal/5) {
+                    ai_position_y -= 14-ball_size_horizontal/5;                    
                 } 
                 
-                else if (apy-bpy < -120 && apy < ch - ph) {
-                    apy += 15;
+                else if (ai_position_y-ball_position_y < -120 && ai_position_y < canvas_height - paddle_height - 14 + ball_size_horizontal/5) {
+                    ai_position_y += 14+ball_size_horizontal/5;
+                    if (ai_position_y > canvas_height - paddle_height) {
+                        console.log("szybki ruch nawala! " + " canvas_height: " + canvas_height + " paddle_height: " + paddle_height + " ai_position: " + ai_position_y);
+                    }
                 }
                 
-                else if (apy-bpy > bs/2-ph/2 && apy > 0) {
-                    apy -= 5;
+                else if (ai_position_y-ball_position_y > ball_size/2-paddle_height/2 && ai_position_y > 4-ball_size_horizontal/2) {
+                    ai_position_y -= 4-ball_size_horizontal/2;
                 }
                 
-                else if (apy-bpy < bs/2-ph/2 && apy < ch - ph) {
-                    apy += 5;
+                else if (ai_position_y-ball_position_y < ball_size/2-paddle_height/2 && ai_position_y < canvas_height - paddle_height - 4 + ball_size_horizontal/2) {
+                    ai_position_y += 4+ball_size_horizontal/2;
+                    if (ai_position_y > canvas_height - paddle_height) {
+                        console.log("wolny ruch nawala! " + "canvas_height: " + canvas_height + " paddle_height: " + paddle_height + " ai_position: " + ai_position_y);
+                    }
                 }
             }
             
-            if(bsx<0) {
-                if(apy-bpy > 120 && apy > 0) {
-                    apy -= 4;                    
+            if(ball_size_horizontal<0) {
+                if(ai_position_y-ball_position_y > 120 && ai_position_y > 4 - ball_size_horizontal/5) {
+                    ai_position_y -= 4-ball_size_horizontal/5;                    
                 } 
                 
-                else if (apy-bpy < -120 && apy < ch - ph) {
-                    apy += 4;
+                else if (ai_position_y-ball_position_y < -120 && ai_position_y < canvas_height - paddle_height - 4 + ball_size_horizontal/5) {
+                    ai_position_y += 4+ball_size_horizontal/5;
                 }
                 
-                else if (apy-bpy > bs/2-ph/2 && apy > 0) {
-                    apy -= 2;
+                else if (ai_position_y-ball_position_y > ball_size/2-paddle_height/2 && ai_position_y > ball_size_horizontal) {
+                    ai_position_y -= ball_size_horizontal;
                 }
                 
-                else if (apy-bpy < bs/2-ph/2 && apy < ch - ph) {
-                    apy += 2;
+                else if (ai_position_y-ball_position_y < ball_size/2-paddle_height/2 && ai_position_y < canvas_height - paddle_height - ball_size_horizontal) {
+                    ai_position_y += ball_size_horizontal;
                 }
             }
         }   
             
         function speedup() {
             
-            if(bsx<0 && bsx>-maxs) {bsx -= .2}
-            else if (bsx>0 && bsx<maxs) {bsx += .2}
+            if(ball_size_horizontal<0 && ball_size_horizontal>-max_speed) {ball_size_horizontal -= .25}
+            else if (ball_size_horizontal>0 && ball_size_horizontal<max_speed) {ball_size_horizontal += .25}
             
-            if(bsy<0 && bsy>-maxs) {bsy -= .2}
-            else if (bsy>0 && bsy<maxs) {bsy += .2}
+            if(ball_size_vertical<0 && ball_size_vertical>-max_speed) {ball_size_vertical -= .25}
+            else if (ball_size_vertical>0 && ball_size_vertical<max_speed) {ball_size_vertical += .25}
         }
             
         canvas.addEventListener("mousemove",playerPosition)    
             
         function game() {    
-        table();
-        paddle();
-        ai();
-        ball();
-        aiPosition();
+        
+            table();
+            paddle();
+            ai();
+            ball();
+            aiPosition();
         }
             
-        const match = setInterval(game,1000/60);
+        let match = setInterval(game,1000/60);
             
         </script>
     </body>
